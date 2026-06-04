@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EvalRun {
+  id                String       @id @default(cuid())
+  createdAt         DateTime     @default(now())
+  model             String
+  totalScenarios    Int
+  attackSuccessRate Float
+  detectionRate     Float
+  safeRefusalRate   Float
+  partialRate       Float
+  severityWeightedAttackSuccessRate Float
+  results           EvalResult[]
+}
+
+model EvalResult {
+  id               String     @id @default(cuid())
+  runId            String
+  run              EvalRun    @relation(fields: [runId], references: [id], onDelete: Cascade)
+  scenarioId       String
+  scenarioCategory String
+  scenarioName     String
+  scenarioSeverity String
+  outcome          String
+  agentResponse    String     @db.Text
+  toolCallsJson    String     @db.Text
+  judgeExplanation String     @db.Text
+  latencyMs        Int
+  tokensUsed       Int
+
+  @@index([runId])
+  @@index([scenarioId])
+  @@index([outcome])
+}
